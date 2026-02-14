@@ -215,13 +215,19 @@ def download():
         logger.info(f"Starting download: {download_id} for URL: {url}")
         
         def download_task():
-            try:
-                ydl_opts = {
-                    'outtmpl': os.path.join(app.config['DOWNLOAD_FOLDER'], '%(title)s.%(ext)s'),
-                    'progress_hooks': [lambda d: progress_hook(d, download_id)],
-                    'quiet': False,
-                    'no_warnings': False,
+    try:
+        ydl_opts = {
+            'outtmpl': os.path.join(app.config['DOWNLOAD_FOLDER'], '%(title)s.%(ext)s'),
+            'progress_hooks': [lambda d: progress_hook(d, download_id)],
+            'quiet': False,
+            'no_warnings': False,
+            # YouTube Bot Bypass
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web'],
                 }
+            },
+        }
                 
                 if format_type == 'audio':
                     # Audio format mapping
