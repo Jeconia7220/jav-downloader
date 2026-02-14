@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JAV Downloader - Fast, free YouTube video and audio downloader">
+    <title>JAV Downloader Pro - YouTube Video & Audio Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Processing...</p>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="8" fill="url(#gradient)"/>
+                    <path d="M20 10L15 25H25L20 10Z" fill="white"/>
+                    <path d="M12 28L20 15L28 28H12Z" fill="white" opacity="0.8"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#4A90E2"/>
+                            <stop offset="100%" stop-color="#357ABD"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">JAV Downloader Pro</span>
+            </div>
+            <div class="header-right">
+                <button id="historyBtn" class="icon-btn" title="Download History">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8h-2c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4z"/>
+                    </svg>
+                    <span class="history-count" id="historyCount">0</span>
+                </button>
+                <button id="themeToggle" class="icon-btn" title="Toggle Dark Mode">
+                    <svg class="theme-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path class="sun-icon" d="M10 2l2 3 3-2-2 3 3 2-3 2 2 3-2-3-3 2 2-3-3-2 3-2-2-3zm0 4a4 4 0 100 8 4 4 0 000-8z"/>
+                        <path class="moon-icon" d="M10 2a8 8 0 108 8 8 8 0 00-8-8zm0 14a6 6 0 110-12 6 6 0 010 12z" style="display:none;"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1>Download YouTube Videos & Audio</h1>
+                <p class="subtitle">Fast, secure, and feature-rich downloader with history tracking and dark mode</p>
+                <div class="keyboard-hint">💡 Tip: Press <kbd>Ctrl+V</kbd> to paste, <kbd>Enter</kbd> to download</div>
+            </section>
+
+            <!-- Download Section -->
+            <section class="download-section">
+                <!-- URL Input -->
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="urlInput" 
+                            class="url-input" 
+                            placeholder="Paste YouTube URL here... (Ctrl+V)"
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                        <button id="clearBtn" class="clear-btn" style="display:none;" title="Clear">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M4 4l8 8m0-8L4 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <button id="infoBtn" class="info-btn" title="Fetch Video Info">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm1 13H9v-6h2v6zm0-8H9V5h2v2z"/>
+                        </svg>
+                    </button>
+                    <button id="pasteBtn" class="paste-btn" title="Paste from Clipboard">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M7 2h6v2H7V2zm8 0h2a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V4a2 2 0 012-2h2v2h8V2z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Video Info Card -->
+                <div id="videoInfo" class="video-info" style="display: none;">
+                    <img id="thumbnail" class="thumbnail" src="" alt="Video thumbnail" loading="lazy">
+                    <div class="video-details">
+                        <h3 id="videoTitle">Video Title</h3>
+                        <p class="video-meta">
+                            <span id="uploader">Uploader</span> • 
+                            <span id="duration">0:00</span>
+                            <span id="filesize" class="filesize"></span>
+                        </p>
+                        <p class="video-description" id="videoDescription"></p>
+                    </div>
+                </div>
+
+                <!-- Format Options -->
+                <div class="format-options">
+                    <div class="format-group">
+                        <label class="format-label">Format</label>
+                        <div class="button-group">
+                            <button class="format-btn active" data-format="video">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M4 3h12c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2zm0 12h12V5H4v10zm5-9l6 4-6 4V6z"/>
+                                </svg>
+                                Video
+                            </button>
+                            <button class="format-btn" data-format="audio">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                                </svg>
+                                Audio
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="quality-group" id="qualityGroup">
+                        <label class="format-label">Quality</label>
+                        <select id="qualitySelect" class="quality-select">
+                            <option value="best">Best Quality (Auto)</option>
+                            <option value="2160p">2160p (4K)</option>
+                            <option value="1440p">1440p (2K)</option>
+                            <option value="1080p">1080p (Full HD)</option>
+                            <option value="720p">720p (HD)</option>
+                            <option value="480p">480p (SD)</option>
+                            <option value="360p">360p</option>
+                        </select>
+                    </div>
+
+                    <div class="audio-format-group" id="audioFormatGroup" style="display: none;">
+                        <label class="format-label">Audio Format</label>
+                        <select id="audioFormatSelect" class="quality-select">
+                            <option value="mp3">MP3 (Best Compatibility)</option>
+                            <option value="m4a">M4A/AAC (High Quality)</option>
+                            <option value="opus">Opus (Best Quality/Size)</option>
+                            <option value="flac">FLAC (Lossless)</option>
+                            <option value="wav">WAV (Uncompressed)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Download Button -->
+                <button id="downloadBtn" class="download-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 2v12m0 0l-4-4m4 4l4-4M4 16h12" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                    <span class="btn-text">Download</span>
+                    <span class="btn-shortcut">(Enter)</span>
+                </button>
+
+                <!-- Progress Container -->
+                <div id="progressContainer" class="progress-container" style="display: none;">
+                    <div class="progress-info">
+                        <span id="progressText">Preparing download...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div class="progress-details">
+                        <span id="progressSpeed">Speed: --</span>
+                        <span id="progressEta">ETA: --</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features -->
+            <section class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+                            <path d="M16 2l4 8 8 1-6 6 2 8-8-4-8 4 2-8-6-6 8-1z"/>
+                        </svg>
+                    </div>
+                    <h3>High Quality</h3>
+                    <p>Download up to 4K (2160p) videos and 192kbps MP3 audio</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+                            <path d="M16 4L4 10v12c0 7.4 5.2 14.3 12 16 6.8-1.7 12-8.6 12-16V10L16 4z"/>
+                        </svg>
+                    </div>
+                    <h3>Fast & Secure</h3>
+                    <p>Lightning-fast downloads with secure processing and rate limiting</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+                            <path d="M10 4v4H6v4h4v4h4v-4h4V8h-4V4h-4zm8 16v4h4v-4h-4zm-8 0v4h4v-4h-4z"/>
+                        </svg>
+                    </div>
+                    <h3>Smart Features</h3>
+                    <p>History tracking, dark mode, keyboard shortcuts, and more</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 JAV Downloader Pro. For personal use only. Respect copyright laws.</p>
+            <p class="disclaimer">This tool is for downloading content you have rights to or is in public domain.</p>
+            <div class="footer-links">
+                <a href="/terms">Terms of Service</a> • 
+                <a href="/privacy">Privacy Policy</a> • 
+                <a href="#" onclick="showAbout(); return false;">About</a> • 
+                <a href="#" onclick="showShortcuts(); return false;">Shortcuts</a> • 
+                <a href="#" onclick="clearAllData(); return false;">Clear Data</a>
+            </div>
+            <p style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
+                Not affiliated with YouTube or Google. All trademarks are property of their respective owners.
+            </p>
+        </footer>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Download History</h2>
+                <button class="modal-close" onclick="closeHistory()">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="historyList" class="history-list">
+                    <p class="empty-state">No download history yet</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="clearHistory()" class="btn-secondary">Clear History</button>
+                <button onclick="closeHistory()" class="btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Terms Agreement Modal (Shows on first visit) -->
+    <div id="termsAgreementModal" class="terms-agreement-modal">
+        <div class="terms-agreement-content">
+            <div class="terms-agreement-header">
+                <div class="warning-icon">⚠️</div>
+                <h2>Terms of Service & Privacy Policy</h2>
+            </div>
+            <div class="terms-agreement-body">
+                <div class="terms-scroll">
+                    <h3>Welcome to JAV Downloader Pro</h3>
+                    <p>Before using this service, please read and accept our Terms of Service and Privacy Policy.</p>
+                    
+                    <div class="important-notice">
+                        <h4>⚠️ Important Legal Notice</h4>
+                        <ul>
+                            <li><strong>Personal Use Only:</strong> This service is for personal, non-commercial use of public domain or Creative Commons content only.</li>
+                            <li><strong>Copyright Compliance:</strong> You are solely responsible for ensuring you have the right to download any content.</li>
+                            <li><strong>YouTube Terms:</strong> You must comply with YouTube's Terms of Service at all times.</li>
+                            <li><strong>No Affiliation:</strong> This site is not affiliated with, endorsed by, or sponsored by YouTube or Google.</li>
+                            <li><strong>User Responsibility:</strong> You accept full responsibility for your use of this service and any legal consequences.</li>
+                        </ul>
+                    </div>
+
+                    <h4>By using this service, you agree that:</h4>
+                    <ul>
+                        <li>You will only download content you own, created, or have permission to download</li>
+                        <li>You will not use this service for commercial purposes</li>
+                        <li>You understand this service is provided "AS-IS" without warranties</li>
+                        <li>The operator is not liable for your actions or any legal consequences</li>
+                        <li>You have read and agree to our full <a href="/terms" target="_blank">Terms of Service</a></li>
+                        <li>You have read and understand our <a href="/privacy" target="_blank">Privacy Policy</a></li>
+                    </ul>
+
+                    <div class="data-notice">
+                        <h4>📊 Data We Collect:</h4>
+                        <p>We collect minimal data to operate this service:</p>
+                        <ul>
+                            <li><strong>IP Addresses:</strong> For rate limiting and security (retained 7-30 days)</li>
+                            <li><strong>Download History:</strong> Stored ONLY in your browser (you can clear anytime)</li>
+                            <li><strong>Video Files:</strong> We do NOT store downloaded videos on our servers</li>
+                        </ul>
+                        <p>See our <a href="/privacy" target="_blank">Privacy Policy</a> for complete details.</p>
+                    </div>
+
+                    <div class="disclaimer-box">
+                        <strong>⚖️ Legal Disclaimer:</strong> This tool is provided for lawful purposes only. 
+                        Downloading copyrighted content without permission may violate copyright laws and YouTube's Terms of Service. 
+                        Use responsibly and legally.
+                    </div>
+                </div>
+            </div>
+            <div class="terms-agreement-footer">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="agreeCheckbox" />
+                    <label for="agreeCheckbox">
+                        I have read and agree to the <a href="/terms" target="_blank">Terms of Service</a> 
+                        and <a href="/privacy" target="_blank">Privacy Policy</a>
+                    </label>
+                </div>
+                <div class="button-container">
+                    <button id="declineBtn" class="btn-decline">Decline</button>
+                    <button id="acceptBtn" class="btn-accept" disabled>Accept & Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
